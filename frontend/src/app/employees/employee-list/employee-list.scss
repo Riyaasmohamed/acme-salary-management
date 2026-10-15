@@ -1,0 +1,161 @@
+// STUDY NOTES: Styles for the employee list page only (Angular scopes them to this component). Colours come from Material theme variables (--mat-sys-*).
+// WHY: A one-column grid stacks header, filters and table with an even 16px gap.
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.page-header {
+  // WHY: Flex puts the title on the left and the "Add employee" button on the right.
+  display: flex;
+  // WHY: Aligns the button with the bottom of the title block.
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+
+  h1 {
+    // WHY: Removes the browser's default heading margin; uses the theme's headline font.
+    margin: 0;
+    font: var(--mat-sys-headline-medium);
+  }
+}
+
+.subtitle {
+  // WHY: Small space under the title; softer colour because it is secondary information.
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.filters {
+  // WHY: flex-flow row wrap lets the search box and dropdowns move to a new line when the screen is narrow.
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+
+  // WHY: Each dropdown has a fixed width so the row looks tidy.
+  mat-form-field {
+    width: 200px;
+  }
+
+  // WHY: The search box grows to take the free space (flex-grow 1), starting from 280px.
+  .search {
+    flex: 1 1 280px;
+  }
+}
+
+.table-card {
+  // WHY: Keeps the table and progress bar inside the card's rounded corners.
+  overflow: hidden;
+}
+
+.progress {
+  // WHY: Always reserves 4px (the progress bar height), so the table does not jump when loading starts or ends.
+  height: 4px;
+}
+
+.table-scroll {
+  // WHY: If the table is wider than the card, only the table scrolls sideways, not the whole page.
+  overflow-x: auto;
+}
+
+table {
+  // WHY: The table fills the whole card width.
+  width: 100%;
+}
+
+.name {
+  // WHY: The name is bolder than the email under it.
+  font-weight: 500;
+}
+
+.email {
+  // WHY: Smaller, softer text for the email line.
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.numeric {
+  // WHY: Numbers are right-aligned with equal-width digits so salaries line up; nowrap keeps "INR 1,200,000" on one line.
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.actions {
+  // WHY: width 1% + nowrap makes the column only as wide as its buttons.
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.delete {
+  // WHY: The delete icon is shown in the error colour to warn that it is destructive.
+  color: var(--mat-sys-error);
+}
+
+// WHY: Hides text visually but keeps it for screen readers (used for the "Actions" header).
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// WHY: Highlights the row under the mouse so it is easier to follow a row across the columns.
+tr.mat-mdc-row:hover {
+  background: var(--mat-sys-surface-container);
+}
+
+// WHY: Shared layout for the empty and error states: centred icon, title, text and button.
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    font: var(--mat-sys-title-medium);
+  }
+
+  p {
+    margin: 0 0 8px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.state-icon {
+  // WHY: A big icon (48px) makes the state clear at a glance; mat-icon needs width, height and font-size changed together.
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--mat-sys-outline);
+
+  // WHY: & means "this same element", so .state-icon.error is red for the error state.
+  &.error {
+    color: var(--mat-sys-error);
+  }
+}
+
+// WHY: Phone screens (600px or less).
+@media (max-width: 600px) {
+  // WHY: Each filter takes the full width, one per line.
+  .filters mat-form-field {
+    width: 100%;
+  }
+
+  // WHY: Smaller cell padding so the three narrow columns fit.
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 0 6px;
+  }
+
+  // WHY: Long email addresses can break anywhere instead of making the table too wide.
+  .email {
+    word-break: break-all;
+  }
+}

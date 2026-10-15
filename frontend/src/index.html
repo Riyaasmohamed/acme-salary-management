@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- STUDY NOTES: The single HTML page of this Single Page Application. The browser loads it once; Angular then draws every page inside <app-root>. -->
+<!-- WHY: lang="en" tells screen readers and browsers the page language. -->
+<html lang="en">
+<head>
+  <!-- WHY: UTF-8 so all characters (names, currency text) display correctly. -->
+  <meta charset="utf-8">
+  <!-- WHY: Default browser tab title; each route in app.routes.ts replaces it with its own title. -->
+  <title>ACME Salary Management</title>
+  <!-- WHY: base href="/" lets the Angular router build URLs like /employees and /insights correctly. -->
+  <base href="/">
+  <!-- WHY: Makes the page use the real device width on phones, so the responsive @media rules work. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- WHY: The small icon shown in the browser tab. -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- WHY: Opens the connection to the font server early, so fonts load faster. -->
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <!-- WHY: Roboto is the font Angular Material is designed for (styles.scss sets typography: Roboto). -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- WHY: The Material Icons font; <mat-icon>groups</mat-icon> draws an icon from this font by its name. -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+  <!-- WHY: Placeholder tag; it matches selector 'app-root' of the App component, so Angular renders the whole app here. -->
+  <app-root></app-root>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Build output
+target/
+dist/
+.angular/
+node_modules/
+
+# Local H2 database files
+backend/data/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store

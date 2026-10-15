@@ -1,0 +1,125 @@
+<!-- STUDY NOTES: Template of the add/edit dialog: a title, an optional error banner, a two-column grid of form fields, and Cancel / Save buttons. -->
+<!-- WHY: The same dialog is used for add and edit; isEdit chooses the title text. -->
+<h2 mat-dialog-title>{{ isEdit ? 'Edit employee' : 'Add employee' }}</h2>
+
+<!-- WHY: [formGroup] connects this form to the FormGroup in the class; (ngSubmit) calls save() on button click or Enter; novalidate turns off the browser's own popups because Angular validates. -->
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    <!-- WHY: A banner for errors that do not belong to one field (e.g. server unreachable). -->
+    @if (formError(); as message) {
+      <!-- WHY: role="alert" makes screen readers read the error at once. -->
+      <div class="form-error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    <!-- WHY: A two-column grid (one column on phones, see SCSS). -->
+    <div class="grid">
+      <mat-form-field appearance="outline">
+        <mat-label>First name</mat-label>
+        <!-- WHY: formControlName links this input to form.controls.firstName; autocomplete="off" stops the browser filling in the user's own name. -->
+        <input matInput formControlName="firstName" autocomplete="off" />
+        <!-- WHY: mat-error appears only when the field is invalid and touched; errorText() picks the right message. -->
+        <mat-error>{{ errorText('firstName') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Last name</mat-label>
+        <input matInput formControlName="lastName" autocomplete="off" />
+        <mat-error>{{ errorText('lastName') }}</mat-error>
+      </mat-form-field>
+
+      <!-- WHY: class "full" makes the email field span both columns because emails are long. -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Email</mat-label>
+        <!-- WHY: type="email" shows the email keyboard on phones. -->
+        <input matInput type="email" formControlName="email" autocomplete="off" />
+        <!-- WHY: This also shows the backend's 409 "email already used" message, set by showServerErrors(). -->
+        <mat-error>{{ errorText('email') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Job title</mat-label>
+        <!-- WHY: [matAutocomplete]="jobTitles" connects the input to the suggestion panel below (found by its #jobTitles reference). -->
+        <input matInput formControlName="jobTitle" [matAutocomplete]="jobTitles" />
+        <!-- WHY: #jobTitles is a template reference variable, so the input above can point to this panel. -->
+        <mat-autocomplete #jobTitles="matAutocomplete">
+          <!-- WHY: Suggestions come from a computed signal that filters by the typed text; the user can still type a new value. -->
+          @for (option of jobTitleSuggestions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+          }
+        </mat-autocomplete>
+        <mat-error>{{ errorText('jobTitle') }}</mat-error>
+      </mat-form-field>
+
+      <!-- WHY: Same autocomplete pattern for the department. -->
+      <mat-form-field appearance="outline">
+        <mat-label>Department</mat-label>
+        <input matInput formControlName="department" [matAutocomplete]="departments" />
+        <mat-autocomplete #departments="matAutocomplete">
+          @for (option of departmentSuggestions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+          }
+        </mat-autocomplete>
+        <mat-error>{{ errorText('department') }}</mat-error>
+      </mat-form-field>
+
+      <!-- WHY: Same pattern for the country; choosing a known country also pre-fills the currency (see constructor). -->
+      <mat-form-field appearance="outline">
+        <mat-label>Country</mat-label>
+        <input matInput formControlName="country" [matAutocomplete]="countries" />
+        <mat-autocomplete #countries="matAutocomplete">
+          @for (option of countrySuggestions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+          }
+        </mat-autocomplete>
+        <mat-error>{{ errorText('country') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hire date</mat-label>
+        <!-- WHY: [matDatepicker] links the input to the calendar; [max]="today" blocks future days in the calendar. -->
+        <input matInput formControlName="hireDate" [matDatepicker]="picker" [max]="today" />
+        <!-- WHY: The calendar icon button at the end of the field (matIconSuffix) that opens the picker. -->
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <!-- WHY: The calendar popup itself, named #picker. -->
+        <mat-datepicker #picker />
+        <mat-error>{{ errorText('hireDate') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Annual salary</mat-label>
+        <!-- WHY: type="number" gives a number value and a numeric keyboard; step="100" is the arrow-key step; the real rules are the validators. -->
+        <input matInput type="number" min="0" step="100" formControlName="salary" />
+        <mat-error>{{ errorText('salary') }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Currency</mat-label>
+        <!-- WHY: A dropdown (not free text) so only known currency codes can be chosen. -->
+        <mat-select formControlName="currency">
+          @for (code of currencies; track code) {
+            <mat-option [value]="code">{{ code }}</mat-option>
+          }
+        </mat-select>
+        <!-- WHY: A hint tells the user why the currency may already be filled. -->
+        <mat-hint>Pre-filled from the country</mat-hint>
+        <mat-error>{{ errorText('currency') }}</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <!-- WHY: type="button" so it does not submit the form; mat-dialog-close closes with no result (cancel); disabled while saving. -->
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancel</button>
+    <!-- WHY: type="submit" triggers (ngSubmit); [disabled] while saving prevents double submits (two employees created). -->
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      <!-- WHY: A small spinner shows the user that saving is in progress. -->
+      @if (saving()) {
+        <mat-spinner diameter="18" />
+      }
+      {{ isEdit ? 'Save changes' : 'Add employee' }}
+    </button>
+  </mat-dialog-actions>
+</form>

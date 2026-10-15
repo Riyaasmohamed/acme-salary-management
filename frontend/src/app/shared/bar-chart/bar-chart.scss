@@ -1,0 +1,62 @@
+// STUDY NOTES: Styles that draw the horizontal bar chart with plain CSS (no chart library).
+.chart {
+  // WHY: Removes the bullets, margin and padding of a normal <ul>.
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  // WHY: A one-column grid stacks the rows with an even gap between them.
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  // WHY: Each row is a 3-column grid: label | bar track | value, so all bars start and end at the same x position.
+  display: grid;
+  // WHY: Label is 110–200px wide, the track takes the free space (1fr), the value is at least 90px.
+  grid-template-columns: minmax(110px, 200px) 1fr minmax(90px, auto);
+  // WHY: Vertically centres the label, bar and value in the row.
+  align-items: center;
+  gap: 12px;
+}
+
+.label {
+  // WHY: These three rules cut long labels with "…" on one line instead of breaking the layout.
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  // WHY: A softer text colour so the numbers stand out more than the labels.
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.track {
+  // WHY: The grey background "rail" of each bar, with rounded ends.
+  height: 14px;
+  border-radius: 7px;
+  background: var(--mat-sys-surface-container-high);
+  // WHY: Keeps the coloured bar inside the rounded track.
+  overflow: hidden;
+}
+
+.bar {
+  // WHY: A <span> is inline by default; block lets it take the width and height we set.
+  display: block;
+  height: 100%;
+  border-radius: 7px;
+  // WHY: The theme's primary colour for the bar.
+  background: var(--mat-sys-primary);
+  // WHY: Animates the width change, e.g. when the selected country changes.
+  transition: width 300ms ease;
+}
+
+.value {
+  // WHY: Numbers are right-aligned so they line up.
+  text-align: right;
+  // WHY: Tabular numbers have equal width digits, so columns of numbers align nicely.
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.empty {
+  // WHY: The "No data to show" message uses the softer text colour.
+  color: var(--mat-sys-on-surface-variant);
+}

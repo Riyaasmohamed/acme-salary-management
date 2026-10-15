@@ -1,0 +1,22 @@
+<!-- STUDY NOTES: Template of the CSS bar chart. Each item is one list row: label, a grey track with a coloured bar, and the formatted value. -->
+<!-- WHY: A list (<ul>) because the chart is really a list of values; [attr.aria-label] binds the label() input to an HTML attribute for screen readers. -->
+<ul class="chart" [attr.aria-label]="label()">
+  <!-- WHY: @for repeats the row for each item; "track item.label" tells Angular how to recognise each row, so only changed rows are redrawn. -->
+  @for (item of items(); track item.label) {
+    <!-- WHY: The aria-label reads the whole row as "India: 2,000", because the bar itself is not readable by screen readers. -->
+    <li class="row" [attr.aria-label]="item.label + ': ' + item.valueLabel">
+      <!-- WHY: [title] shows the full label as a tooltip when long text is cut with "…". -->
+      <span class="label" [title]="item.label">{{ item.label }}</span>
+      <!-- WHY: aria-hidden because the track and bar are visual only; the row's aria-label already gives the value. -->
+      <span class="track" aria-hidden="true">
+        <!-- WHY: [style.width.%] sets the CSS width in percent from widthPercent(item), so the bar length matches the value. -->
+        <span class="bar" [style.width.%]="widthPercent(item)"></span>
+      </span>
+      <!-- WHY: The text value (already formatted by the page) shown at the right. -->
+      <span class="value">{{ item.valueLabel }}</span>
+    </li>
+  <!-- WHY: @empty is shown when the list has no items, so the user sees a message instead of an empty box. -->
+  } @empty {
+    <li class="empty">No data to show</li>
+  }
+</ul>

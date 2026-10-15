@@ -1,0 +1,14 @@
+<!-- STUDY NOTES: Template of the "Are you sure?" dialog. Texts come from the data passed in by the caller (e.g. the delete action). -->
+<!-- WHY: mat-dialog-title styles the heading and links it to the dialog for screen readers; {{ }} prints a value from the component. -->
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<!-- WHY: mat-dialog-content is the scrollable body area of the dialog. -->
+<mat-dialog-content>
+  <p>{{ data.message }}</p>
+</mat-dialog-content>
+<!-- WHY: mat-dialog-actions is the button row; align="end" puts the buttons on the right, as Material recommends. -->
+<mat-dialog-actions align="end">
+  <!-- WHY: [mat-dialog-close]="false" closes the dialog and returns false; cdkFocusInitial puts the keyboard focus on Cancel, so an accidental Enter does not delete. -->
+  <button mat-button [mat-dialog-close]="false" cdkFocusInitial>Cancel</button>
+  <!-- WHY: The confirm button returns true; class "danger" paints it in the error colour to warn that the action is destructive. -->
+  <button mat-flat-button class="danger" [mat-dialog-close]="true">{{ data.confirmLabel }}</button>
+</mat-dialog-actions>

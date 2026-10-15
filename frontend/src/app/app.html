@@ -1,0 +1,29 @@
+<!-- STUDY NOTES: Template of the root App component: a toolbar with the brand and two navigation links, then the area where the current page is shown. -->
+<!-- WHY: mat-toolbar is the Material top bar; the "toolbar" class (app.scss) makes it sticky and coloured. -->
+<mat-toolbar class="toolbar">
+  <!-- WHY: Clicking the brand goes to the employee list; routerLink changes the page without a full browser reload. -->
+  <a class="brand" routerLink="/employees">
+    <!-- WHY: aria-hidden because the icon is decoration only; the text next to it already says the name. -->
+    <mat-icon aria-hidden="true">payments</mat-icon>
+    <span>ACME Salary Management</span>
+  </a>
+  <!-- WHY: <nav> with aria-label tells screen readers this is the main navigation. -->
+  <nav class="nav" aria-label="Main">
+    <!-- WHY: routerLinkActive="active" adds the CSS class "active" while the URL is /employees, so the user sees where they are. -->
+    <a mat-button routerLink="/employees" routerLinkActive="active">
+      <mat-icon>groups</mat-icon>
+      Employees
+    </a>
+    <!-- WHY: Same pattern for the insights dashboard link. -->
+    <a mat-button routerLink="/insights" routerLinkActive="active">
+      <mat-icon>insights</mat-icon>
+      Insights
+    </a>
+  </nav>
+</mat-toolbar>
+
+<!-- WHY: <main> marks the main content for accessibility; the class limits its width and adds padding. -->
+<main class="content">
+  <!-- WHY: router-outlet is where the router shows the page component that matches the URL (EmployeeList or InsightsPage). -->
+  <router-outlet />
+</main>

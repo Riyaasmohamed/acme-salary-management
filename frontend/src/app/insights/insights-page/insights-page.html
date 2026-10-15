@@ -1,0 +1,196 @@
+<!-- STUDY NOTES: Template of the insights dashboard: header, a loading bar, then error / empty / data states. The data state has summary cards, a country table, a headcount chart and a job-title section. -->
+<section class="page">
+  <header class="page-header">
+    <h1>Insights</h1>
+    <!-- WHY: Tells the HR Manager up front that numbers are live and never mix currencies. -->
+    <p class="subtitle">
+      How ACME pays its people. Figures are calculated live from the employee data; salaries are
+      annual and are never averaged across different currencies.
+    </p>
+  </header>
+
+  <!-- WHY: A fixed-height wrapper, so the content does not jump when the progress bar appears or disappears. -->
+  <div class="progress">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Loading insights" />
+    }
+  </div>
+
+  <!-- WHY: Error state first: if the overview failed, show the message and a retry button instead of half a dashboard. -->
+  @if (error(); as message) {
+    <!-- WHY: role="alert" makes screen readers announce the error. -->
+    <mat-card appearance="outlined" class="state" role="alert">
+      <mat-icon class="state-icon error">cloud_off</mat-icon>
+      <h2>Could not load insights</h2>
+      <p>{{ message }}</p>
+      <!-- WHY: Calls loadOverview() again (both requests with forkJoin). -->
+      <button mat-flat-button (click)="loadOverview()">
+        <mat-icon>refresh</mat-icon>
+        Try again
+      </button>
+    </mat-card>
+  <!-- WHY: @else if (!loading()) shows nothing while loading, so the user never sees empty cards before the data arrives. -->
+  } @else if (!loading()) {
+    <!-- WHY: Empty state for a database with no employees. -->
+    @if (headcount().length === 0) {
+      <mat-card appearance="outlined" class="state">
+        <mat-icon class="state-icon">insights</mat-icon>
+        <h2>No data yet</h2>
+        <p>Add employees to see salary insights.</p>
+      </mat-card>
+    } @else {
+      <!-- WHY: Three summary cards; all numbers are counts, so they are safe to show across currencies. -->
+      <div class="summary">
+        <mat-card appearance="outlined" class="stat">
+          <mat-icon>groups</mat-icon>
+          <div>
+            <!-- WHY: totalEmployees() is a computed signal; the number pipe adds thousands separators. -->
+            <div class="stat-value">{{ totalEmployees() | number }}</div>
+            <div class="stat-label">Employees</div>
+          </div>
+        </mat-card>
+        <mat-card appearance="outlined" class="stat">
+          <mat-icon>public</mat-icon>
+          <div>
+            <!-- WHY: One headcount row per country, so the array length is the number of countries. -->
+            <div class="stat-value">{{ headcount().length }}</div>
+            <div class="stat-label">Countries</div>
+          </div>
+        </mat-card>
+        <!-- WHY: "as largest" stores the computed value in a short local name for use inside the block. -->
+        @if (largestCountry(); as largest) {
+          <mat-card appearance="outlined" class="stat">
+            <mat-icon>location_city</mat-icon>
+            <div>
+              <div class="stat-value">{{ largest.country }}</div>
+              <div class="stat-label">Largest team · {{ largest.employeeCount | number }} people</div>
+            </div>
+          </mat-card>
+        }
+      </div>
+
+      <!-- WHY: Two cards side by side on wide screens (table wider than chart), stacked on smaller screens. -->
+      <div class="columns">
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Salary range by country</mat-card-title>
+            <mat-card-subtitle>Minimum, average and maximum annual salary</mat-card-subtitle>
+          </mat-card-header>
+          <!-- WHY: table-scroll lets the table scroll sideways inside the card on small screens. -->
+          <mat-card-content class="table-scroll">
+            <!-- WHY: [dataSource] gives the rows to mat-table; a plain array is enough because there is no client paging or sorting here. -->
+            <table mat-table [dataSource]="countryStats()">
+              <!-- WHY: Each matColumnDef defines a header cell and a body cell; "let row" is one CountrySalaryStats object. -->
+              <ng-container matColumnDef="country">
+                <th mat-header-cell *matHeaderCellDef>Country</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="strong">{{ row.country }}</div>
+                  <!-- WHY: Shows which currency all amounts in this row are in. -->
+                  <div class="muted">{{ row.currency }}</div>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="employees">
+                <th mat-header-cell *matHeaderCellDef class="numeric">Employees</th>
+                <td mat-cell *matCellDef="let row" class="numeric">{{ row.employeeCount | number }}</td>
+              </ng-container>
+              <!-- WHY: money() formats each amount with that row's currency code, e.g. "INR 1,466,667". -->
+              <ng-container matColumnDef="min">
+                <th mat-header-cell *matHeaderCellDef class="numeric">Minimum</th>
+                <td mat-cell *matCellDef="let row" class="numeric">{{ money(row.minSalary, row.currency) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="average">
+                <th mat-header-cell *matHeaderCellDef class="numeric">Average</th>
+                <!-- WHY: The average is bold because it is the most important number of the row. -->
+                <td mat-cell *matCellDef="let row" class="numeric strong">
+                  {{ money(row.averageSalary, row.currency) }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="max">
+                <th mat-header-cell *matHeaderCellDef class="numeric">Maximum</th>
+                <td mat-cell *matCellDef="let row" class="numeric">{{ money(row.maxSalary, row.currency) }}</td>
+              </ng-container>
+              <!-- WHY: Header row and body rows use the column order from countryColumns in the class. -->
+              <tr mat-header-row *matHeaderRowDef="countryColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: countryColumns"></tr>
+            </table>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Headcount by country</mat-card-title>
+            <mat-card-subtitle>Number of employees, largest first</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <!-- WHY: Our own BarChart component; [items] is a property binding to its required input, label is a plain text input. -->
+            <app-bar-chart [items]="headcountChart()" label="Employees per country" />
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card appearance="outlined">
+        <!-- WHY: "with-action" puts the title on the left and the country dropdown on the right. -->
+        <mat-card-header class="with-action">
+          <mat-card-title>Average salary by job title</mat-card-title>
+          <mat-card-subtitle>Within one country, highest average first</mat-card-subtitle>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="country-select">
+            <mat-label>Country</mat-label>
+            <!-- WHY: [value] shows the selected country; (selectionChange) sets the signal, which triggers the switchMap stream that loads that country's job titles. -->
+            <mat-select [value]="selectedCountry()" (selectionChange)="selectedCountry.set($event.value)">
+              @for (country of countries(); track country) {
+                <mat-option [value]="country">{{ country }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </mat-card-header>
+        <!-- WHY: Own progress bar for this section, so changing the country does not hide the whole dashboard. -->
+        <div class="progress">
+          @if (jobTitlesLoading()) {
+            <mat-progress-bar mode="indeterminate" aria-label="Loading job title statistics" />
+          }
+        </div>
+        <mat-card-content>
+          <!-- WHY: An error here is shown inside this card only; the rest of the dashboard stays usable. -->
+          @if (jobTitlesError(); as message) {
+            <p class="inline-error" role="alert">{{ message }}</p>
+          } @else {
+            <!-- WHY: Chart and table side by side on wide screens: the chart gives a quick picture, the table gives exact numbers. -->
+            <div class="job-titles">
+              <!-- WHY: [label] is bound to an expression, so the accessible name includes the selected country. -->
+              <app-bar-chart [items]="jobTitleChart()" [label]="'Average salary by job title in ' + selectedCountry()" />
+              <div class="table-scroll">
+                <!-- WHY: Same column pattern as the country table, but one row per job title. -->
+                <table mat-table [dataSource]="jobTitleStats()">
+                  <ng-container matColumnDef="jobTitle">
+                    <th mat-header-cell *matHeaderCellDef>Job title</th>
+                    <td mat-cell *matCellDef="let row" class="strong">{{ row.jobTitle }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="employees">
+                    <th mat-header-cell *matHeaderCellDef class="numeric">Employees</th>
+                    <td mat-cell *matCellDef="let row" class="numeric">{{ row.employeeCount | number }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="min">
+                    <th mat-header-cell *matHeaderCellDef class="numeric">Minimum</th>
+                    <td mat-cell *matCellDef="let row" class="numeric">{{ money(row.minSalary, row.currency) }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="average">
+                    <th mat-header-cell *matHeaderCellDef class="numeric">Average</th>
+                    <td mat-cell *matCellDef="let row" class="numeric strong">
+                      {{ money(row.averageSalary, row.currency) }}
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="max">
+                    <th mat-header-cell *matHeaderCellDef class="numeric">Maximum</th>
+                    <td mat-cell *matCellDef="let row" class="numeric">{{ money(row.maxSalary, row.currency) }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="jobTitleColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: jobTitleColumns"></tr>
+                </table>
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  }
+</section>

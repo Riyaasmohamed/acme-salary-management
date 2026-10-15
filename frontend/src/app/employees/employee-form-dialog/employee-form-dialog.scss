@@ -1,0 +1,44 @@
+// STUDY NOTES: Styles for the add/edit dialog: two-column field grid, the error banner and the spinner inside the save button.
+.grid {
+  // WHY: Two equal columns; minmax(0, 1fr) lets columns shrink so long text does not push the dialog wider.
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+  // WHY: Small row gap because mat-form-field already reserves space for the error text.
+  row-gap: 4px;
+  // WHY: Space so the first field's floating label is not cut at the top.
+  padding-top: 8px;
+}
+
+.full {
+  // WHY: 1 / -1 means "from the first to the last grid line", so the field spans both columns.
+  grid-column: 1 / -1;
+}
+
+.form-error {
+  // WHY: Icon and message on one line inside a rounded, error-coloured box.
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  // WHY: The theme's error container colours, so the banner is clearly an error but still readable.
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+mat-spinner {
+  // WHY: Shows the spinner in the same line as the button text, with a small gap.
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+// WHY: On phones (600px or less) two columns are too narrow.
+@media (max-width: 600px) {
+  .grid {
+    // WHY: One column, so every field gets the full width.
+    grid-template-columns: 1fr;
+  }
+}

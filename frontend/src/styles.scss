@@ -1,0 +1,54 @@
+// STUDY NOTES: Global styles for the whole app (listed under "styles" in angular.json). It sets the Material 3 theme and page-wide colours.
+// STUDY NOTES: Component-specific styles live in each component's own .scss file instead.
+// WHY: Loads the Angular Material Sass API under the short name "mat", so we can call mat.theme(...) below.
+@use '@angular/material' as mat;
+
+// WHY: The theme is applied on <html> so every element on the page gets the Material CSS variables (--mat-sys-*).
+html {
+  // WHY: Tells the browser the app uses a light colour scheme (scrollbars, form controls match).
+  color-scheme: light;
+  // WHY: mat.theme generates all Material 3 CSS variables (colours, fonts, density) from these few settings.
+  @include mat.theme((
+    color: (
+      // WHY: Azure is the main brand colour (toolbar, primary buttons).
+      primary: mat.$azure-palette,
+      // WHY: Blue is the accent colour used for tertiary elements.
+      tertiary: mat.$blue-palette,
+    ),
+    // WHY: Matches the Roboto font loaded in index.html.
+    typography: Roboto,
+    // WHY: 0 is the default spacing size of Material components (not compact).
+    density: 0,
+  ));
+}
+
+// WHY: Full height lets the page background fill the whole window, even when content is short.
+html,
+body {
+  height: 100%;
+}
+
+body {
+  // WHY: Removes the browser's default 8px margin around the page.
+  margin: 0;
+  // WHY: Uses the theme's body font, so all text is consistent with Material.
+  font: var(--mat-sys-body-medium);
+  // WHY: A light grey surface behind the white cards, so cards stand out.
+  background: var(--mat-sys-surface-container-low);
+  // WHY: The theme's normal text colour on top of that surface.
+  color: var(--mat-sys-on-surface);
+}
+
+// WHY: Global (not per component) because snackbars are drawn outside the components, in an overlay.
+// WHY: NotificationService.error() adds this class so error messages use the theme's error colour.
+.snackbar-error {
+  // WHY: snack-bar-overrides changes only the snackbar's design tokens, the official way to restyle it.
+  @include mat.snack-bar-overrides((
+    // WHY: Red-style background for errors.
+    container-color: var(--mat-sys-error),
+    // WHY: Readable text colour on that error background.
+    supporting-text-color: var(--mat-sys-on-error),
+    // WHY: The action button (e.g. "Close") also stays readable.
+    button-color: var(--mat-sys-on-error),
+  ));
+}

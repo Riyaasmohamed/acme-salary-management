@@ -1,0 +1,14 @@
+// STUDY NOTES: Styles for the confirm dialog: only the red "danger" confirm button.
+// WHY: Loads the Material Sass API so we can use mat.button-overrides.
+@use '@angular/material' as mat;
+
+// WHY: The confirm button deletes data, so it uses the error colour to warn the user.
+.danger {
+  // WHY: button-overrides changes Material's button design tokens, the supported way to restyle a Material button.
+  @include mat.button-overrides((
+    // WHY: Background of the filled (mat-flat-button) button in the theme's error colour.
+    filled-container-color: var(--mat-sys-error),
+    // WHY: Readable text colour on that error background.
+    filled-label-text-color: var(--mat-sys-on-error),
+  ));
+}

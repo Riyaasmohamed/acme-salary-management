@@ -1,0 +1,171 @@
+// STUDY NOTES: Styles for the insights dashboard: page grid, summary cards, two-column layouts, tables and states. Responsive rules at the end.
+// WHY: Stacks all sections vertically with an even gap.
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.page-header {
+  h1 {
+    // WHY: No default margin; theme headline font, the same as the employee page.
+    margin: 0;
+    font: var(--mat-sys-headline-medium);
+  }
+}
+
+.subtitle {
+  // WHY: Limits line length so the explanation text is easy to read.
+  max-width: 760px;
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.progress {
+  // WHY: Reserves the progress bar height so the layout does not jump.
+  height: 4px;
+}
+
+.summary {
+  // WHY: Three equal columns for the three summary cards.
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.stat {
+  // WHY: Icon on the left, value and label on the right, vertically centred.
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+
+  mat-icon {
+    // WHY: A larger icon in the primary colour makes each card easy to recognise.
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.stat-value {
+  // WHY: The number is the main information, so it uses a big headline font.
+  font: var(--mat-sys-headline-small);
+}
+
+.stat-label {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.columns {
+  // WHY: Country table (3 parts) wider than the headcount chart (2 parts); minmax(0, ...) lets columns shrink without overflow.
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+}
+
+mat-card-header {
+  // WHY: Space between each card's title and its content.
+  padding-bottom: 12px;
+}
+
+.with-action {
+  // WHY: Title on the left, dropdown on the right; wrap puts the dropdown under the title when space is short.
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.country-select {
+  // WHY: Fixed width so long country names fit and the header stays stable.
+  width: 220px;
+}
+
+.job-titles {
+  // WHY: Chart and table in two equal columns; align-items start keeps both at the top.
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.table-scroll {
+  // WHY: Only the table scrolls sideways when it is too wide, not the page.
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.numeric {
+  // WHY: Right-aligned, equal-width digits so amounts line up; nowrap keeps "INR 1,466,667" on one line.
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.strong {
+  font-weight: 500;
+}
+
+.muted {
+  // WHY: Small, soft text for secondary info such as the currency code under the country.
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.inline-error {
+  // WHY: The job-title error is shown in the theme's error colour.
+  color: var(--mat-sys-error);
+}
+
+// WHY: Same centred layout for the error and empty states as on the employee page.
+.state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    font: var(--mat-sys-title-medium);
+  }
+
+  p {
+    margin: 0 0 8px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.state-icon {
+  // WHY: mat-icon needs width, height and font-size changed together to be 48px.
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--mat-sys-outline);
+
+  // WHY: Red icon for the error state.
+  &.error {
+    color: var(--mat-sys-error);
+  }
+}
+
+// WHY: Below 1000px two columns are too narrow, so the cards and the chart/table pairs stack.
+@media (max-width: 1000px) {
+  .columns,
+  .job-titles {
+    grid-template-columns: 1fr;
+  }
+}
+
+// WHY: Below 700px the three summary cards are shown one per line.
+@media (max-width: 700px) {
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
